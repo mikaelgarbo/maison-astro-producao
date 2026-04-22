@@ -1,0 +1,59 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+import { Image } from 'astro:assets';
+
+// Busca as rotas
+export async function getStaticPaths() {
+  const { data: posts, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('status', 'published');
+
+  if (error) {
+    console.error("Erro na busca:", error);
+    return [];
+  }
+
+  return posts?.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  })) || [];
+}
+
+const { post } = Astro.props;
+---
+
+<Layout title={`${post.title} | Maison Interiors`}>
+  <main class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-16">
+    
+    <header class="mb-12 max-w-3xl">
+      <div class="flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground mb-6">
+         <span class="font-medium text-foreground">{post.category || 'Design'}</span>
+         <span>·</span>
+         <span>Article</span>
+      </div>
+      
+      <h1 class="text-4xl md:text-[3.5rem] font-serif text-foreground leading-[1.15]" style="font-family: 'Playfair Display', Georgia, serif;">
+        {post.title}
+      </h1>
+    </header>
+
+    {post.featured_image_url && (
+      <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
+        <Image 
+          src={post.featured_image_url} 
+          alt={post.title} 
+          width={1200} 
+          height={675}
+          format="webp"
+          loading="eager"
+          class="w-full h-auto object-cover aspect-[16/9]"
+        />
+      </div>
+    )}
+    
+    <article class="prose-luxury max-w-[680px] mx-auto" set:html={post.content} />
+    
+  </main>
+</Layout>

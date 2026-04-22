@@ -1,0 +1,89 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { supabase } from '../lib/supabase';
+import { ArticleCard } from '../components/ArticleCard';
+
+const { data: posts, error } = await supabase
+  .from('articles')
+  .select('*')
+  .eq('status', 'published')
+  .order('created_at', { ascending: false });
+---
+
+<Layout title="Maison Interiors | Modern American Design">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-16 flex-1">
+    
+    <header class="text-center mb-16">
+      <h1 class="text-4xl md:text-5xl font-serif text-foreground mb-4" style="font-family: 'Playfair Display', Georgia, serif;">
+        Curated Design Inspiration
+      </h1>
+      <p class="text-base text-muted-foreground font-light max-w-2xl mx-auto mb-10">
+        Timeless interiors, modern perspectives. Explore ideas for every room in your home.
+      </p>
+
+      <div class="max-w-md mx-auto relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <svg class="h-4 w-4 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          id="searchInput"
+          placeholder="Search articles..." 
+          class="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-full text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-shadow shadow-sm"
+        />
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12" id="articlesGrid">
+      {posts?.map((post) => (
+        // Este wrapper invisível guarda o título para o JavaScript ler
+        <div class="article-wrapper" data-title={post.title.toLowerCase()}>
+          <ArticleCard article={post} client:visible />
+        </div>
+      ))}
+    </div>
+    
+    <div id="noResultsMsg" class="hidden text-center py-12 text-muted-foreground font-light">
+       No articles found matching your search.
+    </div>
+
+  </main>
+</Layout>
+
+<script>
+  // Aguarda o Astro carregar a página
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const articles = document.querySelectorAll('.article-wrapper');
+    const noResultsMsg = document.getElementById('noResultsMsg');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        // Pega o que o usuário digitou em letras minúsculas
+        const target = e.target as HTMLInputElement;
+        const searchTerm = target.value.toLowerCase();
+        let visibleCount = 0;
+
+        // Passa por todos os artigos do grid
+        articles.forEach((article) => {
+          const title = article.getAttribute('data-title') || '';
+          
+          // Se o título contiver o termo pesquisado, mostra o artigo. Se não, esconde.
+          if (title.includes(searchTerm)) {
+            (article as HTMLElement).style.display = 'block';
+            visibleCount++;
+          } else {
+            (article as HTMLElement).style.display = 'none';
+          }
+        });
+
+        // Mostra a mensagem de "não encontrado" se nenhum artigo bater com a busca
+        if (noResultsMsg) {
+          noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+      });
+    }
+  });
+</script>
