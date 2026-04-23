@@ -3,9 +3,9 @@ export function ArticleCard({ article, priority = false }: { article: any, prior
     <a href={`/articles/${article.slug}`} className="group block">
       <div className="overflow-hidden rounded-sm bg-muted/20">
         <img
-          src={article.featured_image_url}
+          // A Mágica acontece aqui: Interceptação e Otimização em Tempo Real via CDN
+          src={`https://images.weserv.nl/?url=${article.featured_image_url}&w=800&output=webp&q=80`}
           alt={article.title}
-          // Lógica de LCP: Se for prioridade, carrega urgente. Se não, usa o padrão (lazy).
           loading={priority ? "eager" : "lazy"}
           {...(priority ? { fetchPriority: "high" } : {})}
           className="w-full aspect-[4/5] object-cover transition-transform duration-700 ease-out group-hover:scale-105"
