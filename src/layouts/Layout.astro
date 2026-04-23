@@ -19,8 +19,6 @@ const { title } = Astro.props;
 		<title>{title}</title>
 		
 		<meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
-		
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019" crossorigin="anonymous"></script>
 	</head>
 	
 	<body class="bg-background text-foreground font-sans antialiased min-h-screen flex flex-col">
@@ -48,5 +46,16 @@ const { title } = Astro.props;
 			</div>
 		</footer>
 		
+		<script>
+			window.addEventListener('load', () => {
+				setTimeout(() => {
+					const script = document.createElement('script');
+					script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
+					script.async = true;
+					script.crossOrigin = "anonymous";
+					document.head.appendChild(script);
+				}, 500); 
+			});
+		</script>
 	</body>
 </html>
