@@ -17,35 +17,36 @@ const { title } = Astro.props;
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<title>{title}</title>
+		
 		<meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019" crossorigin="anonymous"></script>
+		
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019" crossorigin="anonymous"></script>
 	</head>
+	
 	<body class="bg-background text-foreground font-sans antialiased min-h-screen flex flex-col">
 		
 		<Header client:load />
 
 		<slot />
 		
-	</body class="min-h-screen flex flex-col bg-background text-foreground">
-    <slot />
+		<footer class="border-t border-border mt-auto bg-[#FDFDFD]">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+				
+				<div class="font-serif text-2xl tracking-widest text-foreground">
+					MAISON
+				</div>
 
-    <footer class="border-t border-border mt-auto bg-[#FDFDFD]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        
-        <div class="font-serif text-2xl tracking-widest text-foreground">
-          MAISON
-        </div>
+				<div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-[11px] tracking-wider text-muted-foreground uppercase">
+					<a href="/privacy-policy" class="hover:text-foreground transition-colors duration-300">
+						Privacy Policy
+					</a>
+					<span>
+						&copy; 2026 MAISON INTERIORS. ALL RIGHTS RESERVED.
+					</span>
+				</div>
 
-        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-[11px] tracking-wider text-muted-foreground uppercase">
-          <a href="/privacy-policy" class="hover:text-foreground transition-colors duration-300">
-            Privacy Policy
-          </a>
-          <span>
-            &copy; 2026 MAISON INTERIORS. ALL RIGHTS RESERVED.
-          </span>
-        </div>
-
-      </div>
-    </footer>
-  </body>
+			</div>
+		</footer>
+		
+	</body>
 </html>
