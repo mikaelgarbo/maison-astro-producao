@@ -36,14 +36,14 @@ const { data: posts, error } = await supabase
       </div>
     </header>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12" id="articlesGrid">
-      {posts?.map((post) => (
-        // Este wrapper invisível guarda o título para o JavaScript ler
-        <div class="article-wrapper" data-title={post.title.toLowerCase()}>
-          <ArticleCard article={post} client:visible />
-        </div>
-      ))}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12" id="articlesGrid">
+  {posts?.map((post, index) => (
+    // Este wrapper invisível guarda o título para o JavaScript ler
+    <div class="article-wrapper" data-title={post.title.toLowerCase()}>
+      <ArticleCard article={post} priority={index === 0} client:visible />
     </div>
+  ))}
+</div>
     
     <div id="noResultsMsg" class="hidden text-center py-12 text-muted-foreground font-light">
        No articles found matching your search.
