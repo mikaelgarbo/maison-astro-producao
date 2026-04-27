@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
-
+import { Image } from 'astro:assets';
 
 // Busca as rotas
 export async function getStaticPaths() {
@@ -24,24 +24,19 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 
 // --- TRADUTOR BLINDADO DE FAQ (FORÇA BRUTA) ---
-// Ignora completamente erros de formatação do Gemini/Make e extrai o texto na marra.
 let parsedFaqs = [];
 if (post.faqs) {
   try {
-    // Tentativa 1: Leitura limpa
     let raw = post.faqs;
     if (typeof raw === 'string') raw = JSON.parse(raw);
-    if (typeof raw === 'string') raw = JSON.parse(raw); // Remove escape duplo
+    if (typeof raw === 'string') raw = JSON.parse(raw);
     
     if (Array.isArray(raw)) parsedFaqs = raw;
     else if (raw && typeof raw === 'object') parsedFaqs = [raw];
     
-    // Força erro se a tentativa 1 falhou em criar dados válidos
     if (parsedFaqs.length === 0) throw new Error("JSON Parse falhou ou retornou vazio.");
     
   } catch (error) {
-    // Tentativa 2: Extração nível militar com Regex
-    // Caça as strings "question" e "answer" ignorando a estrutura do JSON
     let textStr = typeof post.faqs === 'string' ? post.faqs : JSON.stringify(post.faqs);
     const qMatches = [...textStr.matchAll(/"question"\s*:\s*"([^"]+)"/g)];
     const aMatches = [...textStr.matchAll(/"answer"\s*:\s*"([^"]+)"/g)];
@@ -55,7 +50,6 @@ if (post.faqs) {
     }
   }
 }
-// Garante que o Array não tem itens vazios
 post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
 ---
 
@@ -76,20 +70,14 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
 
     {post.featured_image_url && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
-        <img 
-          src={`${post.featured_image_url}&w=800&output=webp`}
-          srcset={`
-            ${post.featured_image_url}&w=400&output=webp 400w,
-            ${post.featured_image_url}&w=800&output=webp 800w,
-            ${post.featured_image_url}&w=1200&output=webp 1200w
-          `}
-          sizes="(max-width: 768px) 400px, (max-width: 1200px) 800px, 1200px"
+        <Image 
+          src={post.featured_image_url} 
           alt={post.title} 
-          width="1200" 
-          height="675"
+          width={1200} 
+          height={675}
+          format="webp"
           loading="eager"
           fetchpriority="high"
-          decoding="async"
           class="w-full h-auto object-cover aspect-[16/9]"
         />
       </div>
@@ -97,7 +85,6 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
     
     <article class="prose-luxury max-w-[680px] mx-auto" set:html={post.content} />
     
-    {/* SESSÃO VISUAL DE FAQ PARA HUMANOS E GOOGLE */}
     {parsedFaqs.length > 0 && (
         <section class="max-w-[680px] mx-auto mt-20 pt-10 border-t border-border">
             <h2 class="text-2xl font-serif text-foreground mb-8" style="font-family: 'Playfair Display', Georgia, serif;">
