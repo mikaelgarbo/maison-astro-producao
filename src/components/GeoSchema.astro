@@ -1,0 +1,48 @@
+---
+// src/components/GeoSchema.astro
+const { title, description, url, image, pubDate, faqs } = Astro.props;
+
+// Schema 1: Autoridade do Artigo (Para o Google SGE saber quem é a fonte)
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "image": image,
+  "author": {
+    "@type": "Organization",
+    "name": "Maison Interiors",
+    "url": "https://maisoninteriorshome.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Maison Interiors",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://maisoninteriorshome.com/logo.png" // Garanta que este logo exista
+    }
+  },
+  "datePublished": pubDate,
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": url
+  }
+};
+
+// Schema 2: O Ouro do GEO (FAQPage) - É isso que as IAs usam para dar respostas diretas
+const faqSchema = faqs && faqs.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+} : null;
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
+{faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>}
