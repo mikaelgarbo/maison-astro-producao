@@ -4,15 +4,20 @@ import { Header } from '../components/Header';
 import GeoSchema from '../components/GeoSchema.astro';
 
 interface Props {
-	title: string;
+    title: string;
+    frontmatter?: any;
 }
 
+// 1. AQUI ESTÁ A CORREÇÃO: Declaramos a variável 'data' extraindo as propriedades dinâmicas
+const data = Astro.props.frontmatter || Astro.props || {};
+
+// Mantemos a sua variável de título original para não quebrar a tag <title>
 const { title } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
-	<head>
+    <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Maison Interiors" />
     <meta name="viewport" content="width=device-width" />
@@ -20,14 +25,15 @@ const { title } = Astro.props;
     <title>{title}</title>
     
     <meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
-<GeoSchema 
-    title={data.title} 
-    description={data.meta_description || data.excerpt || data.description} 
-    url={Astro.url} 
-    image={data.image} 
-    pubDate={data.pubDate} 
-    faqs={data.faqs} 
-  />
+    
+    <GeoSchema 
+        title={data.title || title} 
+        description={data.meta_description || data.excerpt || data.description} 
+        url={Astro.url} 
+        image={data.image} 
+        pubDate={data.pubDate} 
+        faqs={data.faqs} 
+    />
 
     <script is:inline>
     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -37,58 +43,58 @@ const { title } = Astro.props;
     })(window,document,'script','dataLayer','GTM-TS7GMF64');
     </script>
     </head>
-	
-	<body class="bg-background text-foreground font-sans antialiased min-h-screen flex flex-col">
-		
-		<Header client:load />
+    
+    <body class="bg-background text-foreground font-sans antialiased min-h-screen flex flex-col">
+        
+        <Header client:load />
 
-		<slot />
-		
-		<footer class="border-t border-border mt-auto bg-[#FDFDFD]">
-			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-				
-				<div class="font-serif text-2xl tracking-widest text-foreground">
-					MAISON
-				</div>
+        <slot />
+        
+        <footer class="border-t border-border mt-auto bg-[#FDFDFD]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <div class="font-serif text-2xl tracking-widest text-foreground">
+                    MAISON
+                </div>
 
-				<div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-[11px] tracking-wider text-muted-foreground uppercase">
-					<a href="/privacy-policy" class="hover:text-foreground transition-colors duration-300">
-						Privacy Policy
-					</a>
-					<span>
-						&copy; 2026 MAISON INTERIORS. ALL RIGHTS RESERVED.
-					</span>
-				</div>
+                <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-[11px] tracking-wider text-muted-foreground uppercase">
+                    <a href="/privacy-policy" class="hover:text-foreground transition-colors duration-300">
+                        Privacy Policy
+                    </a>
+                    <span>
+                        &copy; 2026 MAISON INTERIORS. ALL RIGHTS RESERVED.
+                    </span>
+                </div>
 
-			</div>
-		</footer>
-		
-		<script>
-			let adsLoaded = false;
-			
-			function loadAdSense() {
-				if (adsLoaded) return;
-				adsLoaded = true;
-				
-				const script = document.createElement('script');
-				script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
-				script.async = true;
-				script.crossOrigin = "anonymous";
-				document.head.appendChild(script);
-				
-				// Limpa os gatilhos para não repetir a ação
-				window.removeEventListener('scroll', loadAdSense);
-				window.removeEventListener('mousemove', loadAdSense);
-				window.removeEventListener('touchstart', loadAdSense);
-			}
+            </div>
+        </footer>
+        
+        <script>
+            let adsLoaded = false;
+            
+            function loadAdSense() {
+                if (adsLoaded) return;
+                adsLoaded = true;
+                
+                const script = document.createElement('script');
+                script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
+                script.async = true;
+                script.crossOrigin = "anonymous";
+                document.head.appendChild(script);
+                
+                // Limpa os gatilhos para não repetir a ação
+                window.removeEventListener('scroll', loadAdSense);
+                window.removeEventListener('mousemove', loadAdSense);
+                window.removeEventListener('touchstart', loadAdSense);
+            }
 
-			// Fica "vigiando" a página. Qualquer toque, rolagem ou movimento de mouse dispara os anúncios instantaneamente.
-			window.addEventListener('scroll', loadAdSense, { passive: true });
-			window.addEventListener('mousemove', loadAdSense, { passive: true });
-			window.addEventListener('touchstart', loadAdSense, { passive: true });
-		
-		</script>
-		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS7GMF64"
+            // Fica "vigiando" a página. Qualquer toque, rolagem ou movimento de mouse dispara os anúncios instantaneamente.
+            window.addEventListener('scroll', loadAdSense, { passive: true });
+            window.addEventListener('mousemove', loadAdSense, { passive: true });
+            window.addEventListener('touchstart', loadAdSense, { passive: true });
+        
+        </script>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS7GMF64"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     
     </body>
