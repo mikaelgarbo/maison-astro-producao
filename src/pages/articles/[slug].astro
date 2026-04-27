@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { supabase } from '../../lib/supabase';
-import { Image } from 'astro:assets';
+
 
 // Busca as rotas
 export async function getStaticPaths() {
@@ -76,16 +76,20 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
 
     {post.featured_image_url && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
-        <Image 
-          src={post.featured_image_url} 
-          alt={post.title} 
-          width={1200} 
-          height={675}
-          widths={[400, 800, 1200]}
+        <img 
+          src={`${post.featured_image_url}&w=800&output=webp`}
+          srcset={`
+            ${post.featured_image_url}&w=400&output=webp 400w,
+            ${post.featured_image_url}&w=800&output=webp 800w,
+            ${post.featured_image_url}&w=1200&output=webp 1200w
+          `}
           sizes="(max-width: 768px) 400px, (max-width: 1200px) 800px, 1200px"
-          format="webp"
+          alt={post.title} 
+          width="1200" 
+          height="675"
           loading="eager"
           fetchpriority="high"
+          decoding="async"
           class="w-full h-auto object-cover aspect-[16/9]"
         />
       </div>
