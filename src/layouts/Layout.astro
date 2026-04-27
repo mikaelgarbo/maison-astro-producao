@@ -9,6 +9,7 @@ interface Props {
     post?: any;
 }
 
+// Extração de dados segura para suportar Supabase e Markdown
 const data = Astro.props.post || Astro.props.frontmatter || Astro.props || {};
 const { title } = Astro.props;
 ---
@@ -23,7 +24,8 @@ const { title } = Astro.props;
     <title>{title}</title>
     
     <meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
-    
+
+    {/* Configuração GEO: URL forçada para produção e fallback de imagem para evitar erros no Search Console */}
     <GeoSchema 
         title={data.title || title} 
         description={data.meta_description || data.excerpt || data.description} 
@@ -33,18 +35,13 @@ const { title } = Astro.props;
         faqs={data.faqs} 
     />
 
-    <script is:inline>
-    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-TS7GMF64');
-    </script>
+    {/* O script do GTM foi removido daqui e movido para o carregamento assíncrono no final do body para não bloquear a thread principal */}
     </head>
     
     <body class="bg-background text-foreground font-sans antialiased min-h-screen flex flex-col">
         
-        <Header client:load />
+        {/* Mudança para client:idle para priorizar a pintura do conteúdo antes da interatividade do menu */}
+        <Header client:idle />
 
         <slot />
         
@@ -67,29 +64,43 @@ const { title } = Astro.props;
             </div>
         </footer>
         
-        <script>
-            let adsLoaded = false;
+        {/* CARREGAMENTO INTELIGENTE DE SCRIPTS DE TERCEIROS (GTM + ADSENSE) */}
+        <script is:inline>
+            let scriptsLoaded = false;
             
-            function loadAdSense() {
-                if (adsLoaded) return;
-                adsLoaded = true;
+            function loadThirdPartyScripts() {
+                if (scriptsLoaded) return;
+                scriptsLoaded = true;
                 
-                const script = document.createElement('script');
-                script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
-                script.async = true;
-                script.crossOrigin = "anonymous";
-                document.head.appendChild(script);
+                // 1. Carregamento Assíncrono do Google AdSense
+                const adScript = document.createElement('script');
+                adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
+                adScript.async = true;
+                adScript.crossOrigin = "anonymous";
+                document.head.appendChild(adScript);
+
+                // 2. Carregamento Assíncrono do Google Tag Manager (GTM)
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','GTM-TS7GMF64');
                 
-                window.removeEventListener('scroll', loadAdSense);
-                window.removeEventListener('mousemove', loadAdSense);
-                window.removeEventListener('touchstart', loadAdSense);
+                // Remove os ouvintes para evitar execuções duplicadas
+                window.removeEventListener('scroll', loadThirdPartyScripts);
+                window.removeEventListener('mousemove', loadThirdPartyScripts);
+                window.removeEventListener('touchstart', loadThirdPartyScripts);
             }
 
-            window.addEventListener('scroll', loadAdSense, { passive: true });
-            window.addEventListener('mousemove', loadAdSense, { passive: true });
-            window.addEventListener('touchstart', loadAdSense, { passive: true });
-        
+            // Ativa os scripts apenas quando o usuário demonstrar intenção de interagir com a página
+            window.addEventListener('scroll', loadThirdPartyScripts, { passive: true });
+            window.addEventListener('mousemove', loadThirdPartyScripts, { passive: true });
+            window.addEventListener('touchstart', loadThirdPartyScripts, { passive: true });
+
+            // Failsafe: Se não houver interação em 4 segundos, carrega os scripts para garantir o rastreamento
+            setTimeout(loadThirdPartyScripts, 4000);
         </script>
+
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS7GMF64"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     
