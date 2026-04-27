@@ -1,114 +1,107 @@
 ---
-import '../styles/global.css';
-import { Header } from '../components/Header';
-import GeoSchema from '../components/GeoSchema.astro';
+import Layout from '../../layouts/Layout.astro';
+import { supabase } from '../../lib/supabase';
+// Restauramos a importação vital do componente de Imagem do Astro
+import { Image } from 'astro:assets';
 
-interface Props {
-    title: string;
-    frontmatter?: any;
-    post?: any;
+// Busca as rotas
+export async function getStaticPaths() {
+  const { data: posts, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('status', 'published');
+
+  if (error) {
+    console.error("Erro na busca:", error);
+    return [];
+  }
+
+  return posts?.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  })) || [];
 }
 
-const data = Astro.props.post || Astro.props.frontmatter || Astro.props || {};
-const { title } = Astro.props;
+const { post } = Astro.props;
+
+// --- TRADUTOR BLINDADO DE FAQ (FORÇA BRUTA) ---
+let parsedFaqs = [];
+if (post.faqs) {
+  try {
+    let raw = post.faqs;
+    if (typeof raw === 'string') raw = JSON.parse(raw);
+    if (typeof raw === 'string') raw = JSON.parse(raw);
+    
+    if (Array.isArray(raw)) parsedFaqs = raw;
+    else if (raw && typeof raw === 'object') parsedFaqs = [raw];
+    
+    if (parsedFaqs.length === 0) throw new Error("JSON Parse falhou ou retornou vazio.");
+    
+  } catch (error) {
+    let textStr = typeof post.faqs === 'string' ? post.faqs : JSON.stringify(post.faqs);
+    const qMatches = [...textStr.matchAll(/"question"\s*:\s*"([^"]+)"/g)];
+    const aMatches = [...textStr.matchAll(/"answer"\s*:\s*"([^"]+)"/g)];
+    
+    const count = Math.min(qMatches.length, aMatches.length);
+    for(let i = 0; i < count; i++) {
+      parsedFaqs.push({
+         question: qMatches[i][1],
+         answer: aMatches[i][1]
+      });
+    }
+  }
+}
+post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
 ---
 
-<!doctype html>
-<html lang="en">
-    <head>
-    <link rel="preconnect" href="https://images.weserv.nl" crossorigin />
-    <link rel="preconnect" href="https://kqqyqzxkjetvcsnlwqve.supabase.co" crossorigin />
-    <link rel="dns-prefetch" href="https://images.weserv.nl" />
+<Layout post={post} title={`${post.title} | Maison Interiors`}>
+  <main class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-16">
+    
+    <header class="mb-12 max-w-3xl">
+      <div class="flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground mb-6">
+         <span class="font-medium text-foreground">{post.category || 'Design'}</span>
+         <span>·</span>
+         <span>Article</span>
+      </div>
+      
+      <h1 class="text-4xl md:text-[3.5rem] font-serif text-foreground leading-[1.15]" style="font-family: 'Playfair Display', Georgia, serif;">
+        {post.title}
+      </h1>
+    </header>
 
-    {data.featured_image_url && (
-        <link 
-            rel="preload" 
-            as="image" 
-            fetchpriority="high"
-            imagesrcset={`
-                ${data.featured_image_url}&w=400&output=webp 400w,
-                ${data.featured_image_url}&w=800&output=webp 800w,
-                ${data.featured_image_url}&w=1200&output=webp 1200w
-            `}
-            imagesizes="(max-width: 768px) 400px, (max-width: 1200px) 800px, 1200px"
+    {/* O componente nativo e seguro do Astro voltou. Com as tags de prioridade para não perder performance. */}
+    {post.featured_image_url && (
+      <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
+        <Image 
+          src={post.featured_image_url} 
+          alt={post.title} 
+          width={1200} 
+          height={675}
+          format="webp"
+          loading="eager"
+          fetchpriority="high"
+          class="w-full h-auto object-cover aspect-[16/9]"
         />
+      </div>
     )}
-
-    <meta charset="UTF-8" />
-    <meta name="description" content="Maison Interiors" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
     
-    <meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
-
-    <GeoSchema 
-        title={data.title || title} 
-        description={data.meta_description || data.excerpt || data.description} 
-        url={`https://maisoninteriorshome.com${Astro.url.pathname}`} 
-        image={data.featured_image_url || data.image || 'https://maisoninteriorshome.com/logo.png'} 
-        pubDate={data.created_at || data.pubDate || new Date().toISOString()} 
-        faqs={data.faqs} 
-    />
-    </head>
+    <article class="prose-luxury max-w-[680px] mx-auto" set:html={post.content} />
     
-    <body class="bg-background text-foreground font-sans antialiased min-h-screen flex flex-col">
-        
-        <Header client:idle />
-
-        <slot />
-        
-        <footer class="border-t border-border mt-auto bg-[#FDFDFD]">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                
-                <div class="font-serif text-2xl tracking-widest text-foreground">
-                    MAISON
-                </div>
-
-                <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-[11px] tracking-wider text-muted-foreground uppercase">
-                    <a href="/privacy-policy" class="hover:text-foreground transition-colors duration-300">
-                        Privacy Policy
-                    </a>
-                    <span>
-                        &copy; 2026 MAISON INTERIORS. ALL RIGHTS RESERVED.
-                    </span>
-                </div>
-
+    {parsedFaqs.length > 0 && (
+        <section class="max-w-[680px] mx-auto mt-20 pt-10 border-t border-border">
+            <h2 class="text-2xl font-serif text-foreground mb-8" style="font-family: 'Playfair Display', Georgia, serif;">
+                Frequently Asked Questions
+            </h2>
+            <div class="space-y-8">
+                {parsedFaqs.map((faq: any) => (
+                    <div class="faq-item">
+                        <h3 class="text-lg font-medium text-foreground mb-2">{faq.question}</h3>
+                        <p class="text-muted-foreground leading-relaxed">{faq.answer}</p>
+                    </div>
+                ))}
             </div>
-        </footer>
-        
-        {/* CARREGAMENTO ESTRITO POR INTERAÇÃO */}
-        <script is:inline>
-            let scriptsLoaded = false;
-            
-            function loadThirdPartyScripts() {
-                if (scriptsLoaded) return;
-                scriptsLoaded = true;
-                
-                const adScript = document.createElement('script');
-                adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
-                adScript.async = true;
-                adScript.crossOrigin = "anonymous";
-                document.head.appendChild(adScript);
-
-                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-                'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-                })(window,document,'script','dataLayer','GTM-TS7GMF64');
-                
-                ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'].forEach(function(e) {
-                    window.removeEventListener(e, loadThirdPartyScripts);
-                });
-            }
-
-            ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'].forEach(function(e) {
-                window.addEventListener(e, loadThirdPartyScripts, { passive: true, once: true });
-            });
-        </script>
-        
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS7GMF64"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        </section>
+    )}
     
-    </body>
-</html>
+  </main>
+</Layout>
