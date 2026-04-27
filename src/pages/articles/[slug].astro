@@ -23,26 +23,40 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 
-// --- TRADUTOR BLINDADO DE FAQ ---
-// Limpa os erros de formatação do Make.com e garante que seja uma lista
+// --- TRADUTOR BLINDADO DE FAQ (FORÇA BRUTA) ---
+// Ignora completamente erros de formatação do Gemini/Make e extrai o texto na marra.
 let parsedFaqs = [];
 if (post.faqs) {
-  let raw = post.faqs;
-  if (typeof raw === 'string') {
-    try { 
-        raw = JSON.parse(raw); 
-        if (typeof raw === 'string') raw = JSON.parse(raw); // Remove escape duplo
-    } catch(e) {}
-  }
-  // Se o Make engoliu a lista e mandou só 1 objeto, nós recriamos a lista
-  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-    parsedFaqs = [raw]; 
-  } else if (Array.isArray(raw)) {
-    parsedFaqs = raw;
+  try {
+    // Tentativa 1: Leitura limpa
+    let raw = post.faqs;
+    if (typeof raw === 'string') raw = JSON.parse(raw);
+    if (typeof raw === 'string') raw = JSON.parse(raw); // Remove escape duplo
+    
+    if (Array.isArray(raw)) parsedFaqs = raw;
+    else if (raw && typeof raw === 'object') parsedFaqs = [raw];
+    
+    // Força erro se a tentativa 1 falhou em criar dados válidos
+    if (parsedFaqs.length === 0) throw new Error("JSON Parse falhou ou retornou vazio.");
+    
+  } catch (error) {
+    // Tentativa 2: Extração nível militar com Regex
+    // Caça as strings "question" e "answer" ignorando a estrutura do JSON
+    let textStr = typeof post.faqs === 'string' ? post.faqs : JSON.stringify(post.faqs);
+    const qMatches = [...textStr.matchAll(/"question"\s*:\s*"([^"]+)"/g)];
+    const aMatches = [...textStr.matchAll(/"answer"\s*:\s*"([^"]+)"/g)];
+    
+    const count = Math.min(qMatches.length, aMatches.length);
+    for(let i = 0; i < count; i++) {
+      parsedFaqs.push({
+         question: qMatches[i][1],
+         answer: aMatches[i][1]
+      });
+    }
   }
 }
-// Atualiza o post para o Layout e o GeoSchema receberem a lista limpa
-post.faqs = parsedFaqs; 
+// Garante que o Array não tem itens vazios
+post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
 ---
 
 <Layout post={post} title={`${post.title} | Maison Interiors`}>
