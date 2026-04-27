@@ -6,18 +6,10 @@ import GeoSchema from '../components/GeoSchema.astro';
 interface Props {
     title: string;
     frontmatter?: any;
-    post?: any; // <-- Adicionamos a permissão para receber o pacote do Supabase
+    post?: any;
 }
 
-// O extrator universal: Agora ele prioriza os dados do Supabase (Astro.props.post)
 const data = Astro.props.post || Astro.props.frontmatter || Astro.props || {};
-const { title } = Astro.props;
----
-
-// 1. AQUI ESTÁ A CORREÇÃO: Declaramos a variável 'data' extraindo as propriedades dinâmicas
-const data = Astro.props.frontmatter || Astro.props || {};
-
-// Mantemos a sua variável de título original para não quebrar a tag <title>
 const { title } = Astro.props;
 ---
 
@@ -32,7 +24,7 @@ const { title } = Astro.props;
     
     <meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
     
-<GeoSchema 
+    <GeoSchema 
         title={data.title || title} 
         description={data.meta_description || data.excerpt || data.description} 
         url={`https://maisoninteriorshome.com${Astro.url.pathname}`} 
@@ -88,13 +80,11 @@ const { title } = Astro.props;
                 script.crossOrigin = "anonymous";
                 document.head.appendChild(script);
                 
-                // Limpa os gatilhos para não repetir a ação
                 window.removeEventListener('scroll', loadAdSense);
                 window.removeEventListener('mousemove', loadAdSense);
                 window.removeEventListener('touchstart', loadAdSense);
             }
 
-            // Fica "vigiando" a página. Qualquer toque, rolagem ou movimento de mouse dispara os anúncios instantaneamente.
             window.addEventListener('scroll', loadAdSense, { passive: true });
             window.addEventListener('mousemove', loadAdSense, { passive: true });
             window.addEventListener('touchstart', loadAdSense, { passive: true });
