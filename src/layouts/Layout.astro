@@ -63,6 +63,7 @@ const { title } = Astro.props;
             </div>
         </footer>
         
+        {/* CARREGAMENTO ESTRITO POR INTERAÇÃO (SEM TIMEOUTS) */}
         <script is:inline>
             let scriptsLoaded = false;
             
@@ -70,28 +71,30 @@ const { title } = Astro.props;
                 if (scriptsLoaded) return;
                 scriptsLoaded = true;
                 
+                // 1. Carrega AdSense
                 const adScript = document.createElement('script');
                 adScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3737276747163019";
                 adScript.async = true;
                 adScript.crossOrigin = "anonymous";
                 document.head.appendChild(adScript);
 
+                // 2. Carrega GTM
                 (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
                 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
                 })(window,document,'script','dataLayer','GTM-TS7GMF64');
                 
-                window.removeEventListener('scroll', loadThirdPartyScripts);
-                window.removeEventListener('mousemove', loadThirdPartyScripts);
-                window.removeEventListener('touchstart', loadThirdPartyScripts);
+                // Remove os ouvintes para não vazar memória
+                ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'].forEach(function(e) {
+                    window.removeEventListener(e, loadThirdPartyScripts);
+                });
             }
 
-            window.addEventListener('scroll', loadThirdPartyScripts, { passive: true });
-            window.addEventListener('mousemove', loadThirdPartyScripts, { passive: true });
-            window.addEventListener('touchstart', loadThirdPartyScripts, { passive: true });
-
-            setTimeout(loadThirdPartyScripts, 4000);
+            // Gatilhos rigorosos de interação humana
+            ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'].forEach(function(e) {
+                window.addEventListener(e, loadThirdPartyScripts, { passive: true, once: true });
+            });
         </script>
 
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS7GMF64"
