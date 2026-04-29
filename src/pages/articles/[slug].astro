@@ -70,12 +70,12 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       </h1>
     </header>
 
-    {/* Imagem Principal Otimizada para LCP (Mantida) */}
+    {/* Imagem Principal Otimizada para LCP e SEO Visual */}
     {post.featured_image_url && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
         <Image 
           src={post.featured_image_url} 
-          alt={post.title} 
+          alt={post.featured_image_alt || `Interior design highlight: ${post.title}`} 
           width={1200} 
           height={675}
           format="webp"
@@ -105,7 +105,7 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
         </section>
     )}
 
-    {/* SEÇÃO DE ARTIGOS RELACIONADOS (A Teia de Aranha Corrigida) */}
+    {/* SEÇÃO DE ARTIGOS RELACIONADOS (Teia de Aranha com SEO Visual) */}
     {relatedPosts && relatedPosts.length > 0 && (
       <section class="max-w-[1000px] mx-auto mt-24 pt-16 border-t border-border">
         <h2 class="text-2xl font-serif text-foreground mb-10 text-center" style="font-family: 'Playfair Display', Georgia, serif;">
@@ -115,10 +115,9 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
           {relatedPosts.map((related: any) => (
             <a href={`/articles/${related.slug}`} class="group block">
               <div class="aspect-[16/9] overflow-hidden rounded-sm mb-4 bg-muted/20">
-                {/* O FIX: Passamos a URL original dentro do parâmetro ?url= da weserv */}
                 <img 
                   src={`https://images.weserv.nl/?url=${related.featured_image_url}&w=400&output=webp`} 
-                  alt={related.title}
+                  alt={related.featured_image_alt || `Interior design highlight: ${related.title}`}
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy" 
                 />
