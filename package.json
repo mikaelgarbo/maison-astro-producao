@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^5.0.4",
+    "@astrojs/sitemap": "^3.7.2",
     "@astrojs/tailwind": "^6.0.2",
     "@supabase/supabase-js": "^2.104.0",
     "@tailwindcss/vite": "^4.2.4",

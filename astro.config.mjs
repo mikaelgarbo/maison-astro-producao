@@ -1,11 +1,14 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
+import sitemap from '@astrojs/sitemap';
 
 // Esta configuração força a integração perfeita entre o React e o motor CSS
 export default defineConfig({
+  site: 'https://maisoninteriorshome.com',
   integrations: [
     react(),
-    tailwind({ applyBaseStyles: false }) 
+    tailwind({ applyBaseStyles: false }),
+    sitemap()
   ]
 });
