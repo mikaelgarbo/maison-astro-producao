@@ -30,6 +30,17 @@ export async function getStaticPaths() {
 
 const { post, relatedPosts } = Astro.props;
 
+// --- ESCUDO DE AUDITORIA DO ADSENSE (OCULTAÇÃO DINÂMICA DE AFILIADOS) ---
+if (post && post.content) {
+  // 1. Achatamento de Links: Remove a tag <a> da Amazon, mantendo apenas o texto âncora limpo.
+  post.content = post.content.replace(/<a [^>]*href="[^"]*amazon\.com[^"]*"[^>]*>(.*?)<\/a>/gi, '$1');
+  
+  // 2. Guilhotina: Corta o artigo exatamente no cabeçalho "Shop This Look" (ou variações) até ao final.
+  post.content = post.content.replace(/<h[2-4]>[^<]*Shop This Look[^<]*<\/h[2-4]>[\s\S]*/i, '');
+  post.content = post.content.replace(/<h[2-4]>[^<]*Shop The Look[^<]*<\/h[2-4]>[\s\S]*/i, '');
+}
+// ------------------------------------------------------------------------
+
 // --- TRADUTOR BLINDADO DE FAQ (MANTIDO) ---
 let parsedFaqs = [];
 if (post.faqs) {
