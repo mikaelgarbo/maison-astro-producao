@@ -7,7 +7,7 @@ const { data: posts, error } = await supabase
   .from('articles')
   .select('*')
   .eq('status', 'published')
-  .order('created_at', { ascending: false });
+  .order('created_at', { ascending: false }); // O 'false' garante a ordem Decrescente (Mais Novo -> Mais Antigo)
 ---
 
 <Layout title="Maison Interiors | Modern American Design">

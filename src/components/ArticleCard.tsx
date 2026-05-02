@@ -12,9 +12,25 @@ export function ArticleCard({ article, priority = false }: { article: any, prior
         />
       </div>
       <div className="mt-4 space-y-2">
-        <span className="text-[11px] tracking-[0.2em] uppercase text-muted-foreground block">
-          {article.category || 'Design'}
-        </span>
+        
+        {/* Injeção do Timestamp Semântico (SEO QDF) e Categoria */}
+        <div className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-muted-foreground block">
+          <span>{article.category || 'Design'}</span>
+          
+          {article.created_at && (
+            <>
+              <span>·</span>
+              <time dateTime={article.created_at}>
+                {new Date(article.created_at).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </time>
+            </>
+          )}
+        </div>
+
         <h2 className="font-serif text-lg sm:text-xl leading-snug text-foreground group-hover:text-primary">
           {article.title}
         </h2>
