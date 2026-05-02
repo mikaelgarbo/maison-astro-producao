@@ -5,12 +5,18 @@ import GeoSchema from '../components/GeoSchema.astro';
 
 interface Props {
     title: string;
+    description?: string;
     frontmatter?: any;
     post?: any;
 }
 
 const data = Astro.props.post || Astro.props.frontmatter || Astro.props || {};
-const { title } = Astro.props;
+
+// Desestruturação limpa (sem duplicações para evitar quebra no Build)
+const { title, description } = Astro.props;
+
+// Construtor dinâmico da URL Canônica Oficial
+const canonicalURL = new URL(Astro.url.pathname, 'https://maisoninteriorshome.com');
 ---
 
 <!doctype html>
@@ -19,6 +25,14 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <title>{title}</title>
+    
+    {/* Descrição Dinâmica Otimizada */}
+    <meta name="description" content={description || data.meta_description || data.excerpt || "Maison Interiors"} />
+
+    {/* ESCUDO CANÔNICO PARA O GOOGLE SEARCH CONSOLE */}
+    <link rel="canonical" href={canonicalURL} />
+
     <meta name="robots" content="max-image-preview:large" />
     
     {data.featured_image_url && (
@@ -40,9 +54,7 @@ const { title } = Astro.props;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <meta name="description" content="Maison Interiors" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
     
     <meta name="p:domain_verify" content="0572834bc69eb23e4732e9266e2fa88f" />
 
