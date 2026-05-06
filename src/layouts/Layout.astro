@@ -15,8 +15,14 @@ const data = Astro.props.post || Astro.props.frontmatter || Astro.props || {};
 // Desestruturação limpa (sem duplicações para evitar quebra no Build)
 const { title, description } = Astro.props;
 
-// Construtor dinâmico da URL Canônica Oficial
-const canonicalURL = new URL(Astro.url.pathname, 'https://maisoninteriorshome.com');
+// --- NORMALIZAÇÃO CANÔNICA DETERMINÍSTICA ---
+// Captura a rota atual
+const rawPath = Astro.url.pathname;
+// Remove a barra final (trailing slash) para evitar conflitos de indexação no Cloudflare, exceto se for a raiz '/'
+const normalizedPath = rawPath === '/' ? rawPath : rawPath.replace(/\/$/, '');
+// Constrói a URL absoluta, forçando o padrão sem barra final
+const canonicalURL = new URL(normalizedPath, 'https://maisoninteriorshome.com');
+// --------------------------------------------
 ---
 
 <!doctype html>
