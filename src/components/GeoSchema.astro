@@ -8,9 +8,10 @@ const articleSchema = {
   "description": description,
   "image": image,
   "author": {
-    "@type": "Organization",
-    "name": "Maison Interiors",
-    "url": "https://maisoninteriorshome.com/"
+    "@type": "Person",
+    "name": "Mikael Garbo",
+    "jobTitle": "Editor-in-Chief & Architectural Analyst",
+    "url": "https://maisoninteriorshome.com/about"
   },
   "publisher": {
     "@type": "Organization",
@@ -21,6 +22,7 @@ const articleSchema = {
     }
   },
   "datePublished": pubDate,
+  "dateModified": pubDate,
   "mainEntityOfPage": {
     "@type": "WebPage",
     "@id": url
@@ -41,5 +43,5 @@ const faqSchema = faqs && faqs.length > 0 ? {
 } : null;
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script>
-{faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>}
+<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} is:inline></script>
+{faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline></script>}
