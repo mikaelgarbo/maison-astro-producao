@@ -1,0 +1,69 @@
+---
+const { post } = Astro.props;
+
+// Parse dos Pros e Cons (vêm como JSON do banco de dados)
+const pros = Array.isArray(post.product_pros) ? post.product_pros : [];
+const cons = Array.isArray(post.product_cons) ? post.product_cons : [];
+---
+
+<div class="my-12 p-6 border-2 border-primary/10 rounded-2xl bg-muted/5 shadow-sm overflow-hidden">
+  <div class="grid md:grid-cols-2 gap-8 items-center">
+    
+    {/* Lado Esquerdo: Imagem oficial da Amazon */}
+    <div class="relative aspect-square bg-white rounded-xl overflow-hidden border border-border/50">
+      <img 
+        src={post.cover_image_url || post.featured_image_url} 
+        alt={post.title}
+        class="w-full h-full object-contain p-4"
+        loading="lazy"
+      />
+      {post.price && (
+        <div class="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full font-bold shadow-lg">
+          {post.price}
+        </div>
+      )}
+    </div>
+
+    {/* Lado Direito: Info e CTA */}
+    <div class="flex flex-col space-y-4">
+      <h2 class="text-2xl font-serif leading-tight">{post.title}</h2>
+      
+      <div class="space-y-3">
+        <p class="text-sm font-bold uppercase tracking-wider text-muted-foreground">Editor's Analysis:</p>
+        
+        {/* Pros e Cons Grid */}
+        <div class="grid grid-cols-1 gap-3">
+          {pros.map((pro: string) => (
+            <div class="flex items-start gap-2 text-sm">
+              <span class="text-green-600">✓</span>
+              <span>{pro}</span>
+            </div>
+          ))}
+          {cons.map((con: string) => (
+            <div class="flex items-start gap-2 text-sm opacity-70 italic">
+              <span class="text-red-400">×</span>
+              <span>{con}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Botão de Compra - O Motor de Conversão */}
+      <a 
+        href={post.affiliate_link} 
+        target="_blank" 
+        rel="sponsored nofollow" 
+        class="inline-flex items-center justify-center px-8 py-4 bg-[#FF9900] hover:bg-[#E68A00] text-black font-bold rounded-full transition-all transform hover:scale-[1.02] active:scale-95 shadow-md"
+      >
+        Check Price on Amazon
+      </a>
+    </div>
+  </div>
+</div>
+
+{/* Disclaimer Obrigatório (Amazon TOS) */}
+<p class="text-[10px] text-muted-foreground/60 mt-4 italic text-center px-4">
+  Maison Interiors is a participant in the Amazon Services LLC Associates Program, 
+  an affiliate advertising program designed to provide a means for sites to earn 
+  advertising fees by advertising and linking to Amazon.com.
+</p>

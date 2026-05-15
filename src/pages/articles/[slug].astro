@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AffiliateProduct from '../../components/AffiliateProduct.astro';
 import { supabase } from '../../lib/supabase';
 import { Image } from 'astro:assets';
 
@@ -96,7 +97,8 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
     </header>
 
     {/* Imagem Principal Otimizada para LCP e SEO Visual */}
-    {post.featured_image_url && (
+    {/* Nota: Se o artigo for de afiliado, a imagem principal já estará na Product Box. Ocultamos esta para não duplicar visualmente */}
+    {post.featured_image_url && !post.is_affiliate && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
         <Image 
           src={post.featured_image_url} 
@@ -110,8 +112,11 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
         />
       </div>
     )}
+
+    {/* Gatilho Condicional: Se for artigo da fila Amazon, injeta a caixa de conversão aqui */}
+    {post.is_affiliate && <AffiliateProduct post={post} />}
     
-    <article class="prose-luxury max-w-[680px] mx-auto" set:html={post.content} />
+    <article class="prose-luxury max-w-[680px] mx-auto mt-8" set:html={post.content} />
     
     {/* SEÇÃO DE FAQ (Visual mantido intacto) */}
     {parsedFaqs.length > 0 && (
