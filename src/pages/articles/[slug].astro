@@ -65,8 +65,6 @@ if (post.faqs) {
   }
 }
 post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
-// O parse continua necessário para desenhar o HTML visual das FAQs no ecrã.
-// A geração do JSON-LD foi delegada para o Layout.astro/GeoSchema.
 ---
 
 <Layout post={post} title={`${post.title} | Maison Interiors`}>
@@ -77,7 +75,6 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       <div class="flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground mb-6">
          <span class="font-medium text-foreground">{post.category || 'Design'}</span>
          <span>·</span>
-         {/* Injeção do Timestamp Semântico (SEO QDF) */}
          {post.created_at ? (
            <time datetime={post.created_at}>
              {new Date(post.created_at).toLocaleDateString('en-US', { 
@@ -96,9 +93,8 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       </h1>
     </header>
 
-    {/* Imagem Principal Otimizada para LCP e SEO Visual */}
-    {/* Nota: Se o artigo for de afiliado, a imagem principal já estará na Product Box. Ocultamos esta para não duplicar visualmente */}
-    {post.featured_image_url && !post.is_affiliate && (
+    {/* CORREÇÃO CRÍTICA 1: Removida a trava antiga. Agora a imagem do cenário gerada pelo Gemini aparece no topo do artigo */}
+    {post.featured_image_url && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
         <Image 
           src={post.featured_image_url} 
@@ -113,12 +109,13 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       </div>
     )}
 
-    {/* Gatilho Condicional: Se for artigo da fila Amazon, injeta a caixa de conversão aqui */}
+    {/* CORREÇÃO CRÍTICA 2: O texto conceitual e educativo do Gemini agora renderiza ANTES do produto para criar o contexto de luxo */}
+    <article class="prose prose-stone dark:prose-invert max-w-[680px] mx-auto mt-8 mb-12 text-foreground leading-relaxed text-base" set:html={post.content} />
+
+    {/* Gatilho Condicional: A caixa de produto da Amazon entra logo abaixo do texto como a recomendação natural */}
     {post.is_affiliate && <AffiliateProduct post={post} />}
     
-    <article class="prose-luxury max-w-[680px] mx-auto mt-8" set:html={post.content} />
-    
-    {/* SEÇÃO DE FAQ (Visual mantido intacto) */}
+    {/* SEÇÃO DE FAQ */}
     {parsedFaqs.length > 0 && (
         <section class="max-w-[680px] mx-auto mt-20 pt-10 border-t border-border">
             <h2 class="text-2xl font-serif text-foreground mb-8" style="font-family: 'Playfair Display', Georgia, serif;">
@@ -135,7 +132,7 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
         </section>
     )}
 
-    {/* SEÇÃO DE ARTIGOS RELACIONADOS (Teia de Aranha com SEO Visual) */}
+    {/* SEÇÃO DE ARTIGOS RELACIONADOS */}
     {relatedPosts && relatedPosts.length > 0 && (
       <section class="max-w-[1000px] mx-auto mt-24 pt-16 border-t border-border">
         <h2 class="text-2xl font-serif text-foreground mb-10 text-center" style="font-family: 'Playfair Display', Georgia, serif;">
