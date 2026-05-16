@@ -4,13 +4,10 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://maisoninteriors.com', // Restaura o domínio base para corrigir caminhos de assets e SEO
+  site: 'https://maisoninteriorshome.com', // Restauração exata do domínio real
   integrations: [tailwind()],
   adapter: cloudflare({
     imageService: 'cloudflare',
-    platformProxy: {
-      enabled: true
-    },
-    compatibilityDate: '2026-05-15' // Mantém a trava de compatibilidade sincronizada com o servidor da Cloudflare
+    compatibilityDate: '2026-05-15' // Trava do servidor Cloudflare sem interferência de proxy
   })
 });
