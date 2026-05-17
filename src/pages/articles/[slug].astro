@@ -4,7 +4,6 @@ import AffiliateProduct from '../../components/AffiliateProduct.astro';
 import { supabase } from '../../lib/supabase';
 import { Image } from 'astro:assets';
 
-// Busca as rotas e os artigos relacionados
 export async function getStaticPaths() {
   const { data: posts, error } = await supabase
     .from('articles')
@@ -17,7 +16,6 @@ export async function getStaticPaths() {
   }
 
   return posts?.map((post) => {
-    // Busca 3 artigos relacionados da mesma categoria (excluindo o atual)
     const relatedPosts = posts
       .filter(p => p.category === post.category && p.slug !== post.slug)
       .slice(0, 3);
@@ -31,16 +29,12 @@ export async function getStaticPaths() {
 
 const { post, relatedPosts } = Astro.props;
 
-// --- ESCUDO DE AUDITORIA DO ADSENSE (OCULTAÇÃO DINÂMICA DE AFILIADOS) ---
+// --- ESCUDO DE AUDITORIA DO ADSENSE ---
 if (post && post.content) {
-  // 1. Achatamento de Links: Remove a tag <a> da Amazon, mantendo apenas o texto âncora limpo.
   post.content = post.content.replace(/<a [^>]*href="[^"]*amazon\.com[^"]*"[^>]*>(.*?)<\/a>/gi, '$1');
-  
-  // 2. Guilhotina: Corta o artigo exatamente no cabeçalho "Shop This Look" (ou variações) até ao final.
   post.content = post.content.replace(/<h[2-4]>[^<]*Shop This Look[^<]*<\/h[2-4]>[\s\S]*/i, '');
   post.content = post.content.replace(/<h[2-4]>[^<]*Shop The Look[^<]*<\/h[2-4]>[\s\S]*/i, '');
 }
-// ------------------------------------------------------------------------
 
 // --- TRADUTOR BLINDADO DE FAQ ---
 let parsedFaqs = [];
@@ -93,7 +87,7 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       </h1>
     </header>
 
-    {/* CORREÇÃO CRÍTICA 1: Removida a trava antiga. Agora a imagem do cenário gerada pelo Gemini aparece no topo do artigo */}
+    {/* Renderização do Banner Principal (Imagem do ambiente gerada pelo Gemini) */}
     {post.featured_image_url && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
         <Image 
@@ -109,10 +103,12 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       </div>
     )}
 
-    {/* CORREÇÃO CRÍTICA 2: O texto conceitual e educativo do Gemini agora renderiza ANTES do produto para criar o contexto de luxo */}
-    <article class="prose prose-stone dark:prose-invert max-w-[680px] mx-auto mt-8 mb-12 text-foreground leading-relaxed text-base" set:html={post.content} />
+    {/* O conteúdo conceitual da IA renderiza primeiro utilizando a classe estável prose-luxury */}
+    {post.content && (
+      <article class="prose-luxury max-w-[680px] mx-auto mt-8 mb-12" set:html={post.content} />
+    )}
 
-    {/* Gatilho Condicional: A caixa de produto da Amazon entra logo abaixo do texto como a recomendação natural */}
+    {/* A caixa de afiliação com a imagem real do produto entra logo a seguir */}
     {post.is_affiliate && <AffiliateProduct post={post} />}
     
     {/* SEÇÃO DE FAQ */}
