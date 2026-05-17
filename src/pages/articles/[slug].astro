@@ -2,7 +2,6 @@
 import Layout from '../../layouts/Layout.astro';
 import AffiliateProduct from '../../components/AffiliateProduct.astro';
 import { supabase } from '../../lib/supabase';
-import { Image } from 'astro:assets';
 
 export async function getStaticPaths() {
   const { data: posts, error } = await supabase
@@ -87,18 +86,15 @@ post.faqs = parsedFaqs.filter(faq => faq.question && faq.answer);
       </h1>
     </header>
 
-    {/* Renderização do Banner Principal (Imagem do ambiente gerada pelo Gemini) */}
+    {/* Renderização do Banner Principal utilizando tag HTML nativa para bypass de CORS/Whitelist do Astro */}
     {post.featured_image_url && (
       <div class="mb-16 overflow-hidden rounded-sm bg-muted/20">
-        <Image 
+        <img 
           src={post.featured_image_url} 
           alt={post.featured_image_alt || `Interior design highlight: ${post.title}`} 
-          width={1200} 
-          height={675}
-          format="webp"
+          class="w-full h-auto object-cover aspect-[16/9]"
           loading="eager"
           fetchpriority="high"
-          class="w-full h-auto object-cover aspect-[16/9]"
         />
       </div>
     )}
